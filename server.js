@@ -7,7 +7,7 @@ const sequelize = require('./config/connection');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const morgan = require('morgan');
 // Controllers
-const routes = require('./controllers');
+const routes = require('./routes');
 
 // Helpers
 const helpers = require('./utils/helpers');
