@@ -56,9 +56,33 @@ async function renderLoggedOut(req, res) {
   }
 }
 
+async function renderUserProfilePage(req, res) {
+  const userData = await User.findByPk(req.session.user_id, {
+    attributes: { exclude: ['password'] },
+    include: [{ model: Post,
+      include: {
+      model: User,
+      attributes: ["name", "username"],
+    }, },
+    { model: Material,
+      include: {
+      model: User,
+      attributes: ["name"],
+    }, }],
+  });
+
+  const user = userData.get({ plain: true });
+
+  res.render('profile', {
+    ...user,
+    logged_in: req.session.logged_in
+  });
+}
+
 module.exports = {
   renderSignedUp,
   renderLoggedIn,
   renderLoggedOut,
-
+  renderUserProfilePage,
+  
 }
