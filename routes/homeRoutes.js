@@ -1,13 +1,16 @@
 const router = require('express').Router();
 const { User, Material, Community, Post, Comment } = require('../models');
-const c = require('../controllers/homeController');
 const withAuth = require('../utils/auth');
 
-router.get('/', c.renderHomePage);
-router.get('/loginSignup', c.renderLoginSignupPage);
-
-
-router.use(withAuth);
+router.get('/', async (req, res) => {
+    try {
+      res.render('homepage', {
+        logged_in: req.session.logged_in
+      });
+    } catch (err) {
+      res.status(500).json(err);
+    }
+});
 
 router.get('/community/:id', withAuth, async (req, res) => {
   try {
@@ -131,5 +134,14 @@ router.get('/messageBoardPost/:id', withAuth, async (req, res) => {
   }
 });
 
+router.get('/loginSignup', (req, res) => {
+    // If the user is already logged in, redirect the request to another route
+    if (req.session.logged_in) {
+      res.redirect('/');
+      return;
+    }
+
+    res.render('loginSignup');
+});
 
 module.exports = router;
