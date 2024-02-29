@@ -11,7 +11,7 @@ const routes = require('./routes');
 
 // Helpers
 const helpers = require('./utils/helpers');
-
+const errorHandler = require('./utils/error-handler');
 const app = express();
 const PORT = process.env.PORT;
 
@@ -45,7 +45,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Use routes
 app.use(routes);
-
+app.use(errorHandler);
 
 sequelize.sync({ force: false }).then(() => {
   app.listen(PORT, () => console.log('Now listening'));
