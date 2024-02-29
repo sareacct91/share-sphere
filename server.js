@@ -1,25 +1,26 @@
+require('express-async-errors');
 const path = require('path');
 const express = require('express');
-const exphbs = require('express-handlebars');
+const {create} = require('express-handlebars');
 const session = require('express-session');
 const sequelize = require('./config/connection');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
-
-// Controllers 
+const morgan = require('morgan');
+// Controllers
 const routes = require('./controllers');
 
 // Helpers
 const helpers = require('./utils/helpers');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 
 // Creates the Handlebars.js engine object with custom helper functions
-const hbs = exphbs.create({ helpers });
+const hbs = create({ extname: 'hbs', helpers });
 
 // // Set Handlebars as the view engine
-app.engine('handlebars', hbs.engine);
-app.set('view engine', 'handlebars');
+app.engine('hbs', hbs.engine);
+app.set('view engine', 'hbs');
 
 const sess = {
   secret: 'Super secret secret',
@@ -37,21 +38,21 @@ const sess = {
 };
 
 app.use(session(sess));
-
+app.use(morgan('tiny'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Use routes
 app.use(routes);
- 
+
 
 sequelize.sync({ force: false }).then(() => {
   app.listen(PORT, () => console.log('Now listening'));
 });
 
 
-//serve the css 
+//serve the css
 
 app.use('/community/css', express.static('public/css', {
   setHeaders: (res, path) => {
@@ -60,5 +61,3 @@ app.use('/community/css', express.static('public/css', {
     }
   }
 }));
-
- 
