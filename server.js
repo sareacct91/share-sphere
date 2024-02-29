@@ -23,7 +23,7 @@ app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 
 const sess = {
-  secret: 'Super secret secret',
+  secret: process.env.SESS_SECRET,
   cookie: {
     maxAge: 300000,
     httpOnly: true,
@@ -50,14 +50,3 @@ app.use(routes);
 sequelize.sync({ force: false }).then(() => {
   app.listen(PORT, () => console.log('Now listening'));
 });
-
-
-//serve the css
-
-app.use('/community/css', express.static('public/css', {
-  setHeaders: (res, path) => {
-    if (path.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-    }
-  }
-}));
