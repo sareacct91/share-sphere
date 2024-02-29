@@ -26,12 +26,13 @@ app.locals.layout = false;
 const sess = {
   secret: process.env.SESS_SECRET,
   cookie: {
-    maxAge: 300000,
+    maxAge: 60 * 60 * 24 * 1000,
     httpOnly: true,
     secure: false,
     sameSite: 'strict',
   },
   resave: false,
+  rolling: true,
   saveUninitialized: true,
   store: new SequelizeStore({
     db: sequelize
@@ -39,7 +40,7 @@ const sess = {
 };
 
 app.use(session(sess));
-app.use(morgan('tiny'));
+app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
