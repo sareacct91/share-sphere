@@ -1,27 +1,24 @@
 const router = require('express').Router();
 const { User, Material, Community, Post, Comment } = require('../models');
+const c = require('../controllers/homeController');
 const withAuth = require('../utils/auth');
 
-router.get('/', async (req, res) => {
-    try {
-      res.render('homepage', {  
-        logged_in: req.session.logged_in 
-      });
-    } catch (err) {
-      res.status(500).json(err);
-    }
-});
+router.get('/', c.renderHomePage);
+router.get('/loginSignup', c.renderLoginSignupPage);
+
+
+router.use(withAuth);
 
 router.get('/community/:id', withAuth, async (req, res) => {
   try {
     // Get all materials and JOIN with user data and community data
     const communityData = await Community.findByPk( req.params.id, {
-      include: [ { model: Material, 
-        attributes: ['id', 'material_name', 'cost', 'availability', 'description', 'user_id', 'availability', 'category', 'filename', 'community_id' ], 
+      include: [ { model: Material,
+        attributes: ['id', 'material_name', 'cost', 'availability', 'description', 'user_id', 'availability', 'category', 'filename', 'community_id' ],
           include: {
           model: User,
           attributes: ['name', 'username'],
-        }, 
+        },
       },],
     });
 
@@ -29,9 +26,9 @@ router.get('/community/:id', withAuth, async (req, res) => {
     const communities = communityData.get({ plain: true });
 
     // Pass serialized data and session flag into template
-    res.render('community', { 
-      ...communities, 
-      logged_in: req.session.logged_in 
+    res.render('community', {
+      ...communities,
+      logged_in: req.session.logged_in
     });
   } catch (err) {
     res.status(500).json(err);
@@ -44,9 +41,9 @@ router.get('/material/:id', withAuth, async (req, res) => {
       const materialData = await Material.findByPk(req.params.id, {
         include: [ { model: User, attributes: ['name', 'username', 'email'], }, { model: Community, attributes: ['community_name', 'id'] } ],
       });
-  
+
       const materials = materialData.get({ plain: true });
-  
+
       res.render('communityListing', {
         ...materials,
         logged_in: req.session.logged_in
@@ -61,20 +58,20 @@ router.get('/profile', withAuth, async (req, res) => {
       // Find the logged in user based on the session ID
       const userData = await User.findByPk(req.session.user_id, {
         attributes: { exclude: ['password'] },
-        include: [{ model: Post, 
+        include: [{ model: Post,
           include: {
           model: User,
           attributes: ["name", "username"],
-        }, }, 
-        { model: Material, 
+        }, },
+        { model: Material,
           include: {
           model: User,
           attributes: ["name"],
         }, }],
       });
-  
+
       const user = userData.get({ plain: true });
-  
+
       res.render('profile', {
         ...user,
         logged_in: req.session.logged_in
@@ -134,14 +131,5 @@ router.get('/messageBoardPost/:id', withAuth, async (req, res) => {
   }
 });
 
-router.get('/loginSignup', (req, res) => {
-    // If the user is already logged in, redirect the request to another route
-    if (req.session.logged_in) {
-      res.redirect('/');
-      return;
-    }
-  
-    res.render('loginSignup');
-});
-  
+
 module.exports = router;
