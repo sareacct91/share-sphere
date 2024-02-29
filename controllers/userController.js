@@ -1,4 +1,4 @@
-const { User } = require('../models');
+const { User,Post, Material } = require('../models');
 const { BadRequestError, InternalServerError, } = require('../utils/errors');
 
 const {createUser, findOneByEmail, } = require('../utils/queries/user');
@@ -71,12 +71,9 @@ async function renderUserProfilePage(req, res) {
     }, }],
   });
 
-  const user = userData.get({ plain: true });
+  const user = userData.toJSON();
 
-  res.render('profile', {
-    ...user,
-    logged_in: req.session.logged_in
-  });
+  res.render('profile', { ...user });
 }
 
 module.exports = {
@@ -84,5 +81,5 @@ module.exports = {
   renderLoggedIn,
   renderLoggedOut,
   renderUserProfilePage,
-  
+
 }
